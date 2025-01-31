@@ -9,6 +9,10 @@
     "test": "jest",
     "start": "ts-node src/app.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karanveer2524/BED_Assignment_2"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
