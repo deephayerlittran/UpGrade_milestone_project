@@ -1,7 +1,18 @@
 import { Router } from "express";
-import { healthCheck } from "../../v1/controllers/healthController";
+import { healthCheck } from "../controllers/healthController";
 
 const router = Router();
+
+
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     description: Returns the health status of the server
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ */
 
 router.get("/health", healthCheck);
 
