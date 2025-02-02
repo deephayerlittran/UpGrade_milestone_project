@@ -4,7 +4,9 @@ import {
   addEmployee, 
   modifyEmployee, 
   removeEmployee, 
-  fetchEmployeeById 
+  fetchEmployeeById, 
+  fetchEmployeesByBranch, 
+  fetchEmployeesByDepartment
 } from "../services/employeeService";
 import { Employee } from "../interfaces/Employee";
 
@@ -26,14 +28,14 @@ export const getEmployeeById = (req: Request, res: Response): void => {
 };
 
 export const createEmployee = (req: Request, res: Response): void => {
-  const { name, position } = req.body;
+  const { name, position, department, email, phone, branchId } = req.body;
 
-  if (!name || !position) {
+  if (!name || !position || !department || !email || !phone || !branchId) {
     res.status(400).json({ message: "Missing required fields" });
     return;
   }
 
-  const newEmployee: Employee = addEmployee({ id: "", name, position, department: "", email: "", phone: "", branchId: "" });
+  const newEmployee: Employee = addEmployee({ id: "", name, position, department, email, phone, branchId });
   res.status(201).json({ message: "Employee created", data: newEmployee });
 };
 
@@ -65,4 +67,30 @@ export const deleteEmployee = (req: Request, res: Response): void => {
   }
 
   res.status(200).json({ message: "Employee deleted" });
+};
+
+// Fetch employees by branch
+export const getEmployeesByBranch = (req: Request, res: Response): void => {
+  const { branchId } = req.params;
+  const employees: Employee[] = fetchEmployeesByBranch(branchId);
+
+  if (employees.length === 0) {
+    res.status(404).json({ message: "No employees found for this branch" });
+    return;
+  }
+
+  res.status(200).json({ message: "Fetched employees for branch", data: employees });
+};
+
+// Fetch employees by department
+export const getEmployeesByDepartment = (req: Request, res: Response): void => {
+  const { department } = req.params;
+  const employees: Employee[] = fetchEmployeesByDepartment(department);
+
+  if (employees.length === 0) {
+    res.status(404).json({ message: "No employees found for this department" });
+    return;
+  }
+
+  res.status(200).json({ message: "Fetched employees for department", data: employees });
 };

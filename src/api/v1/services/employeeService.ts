@@ -4,6 +4,14 @@ let employees: Employee[] = [];
 
 export const fetchAllEmployees = (): Employee[] => {
   return employees;
+}
+
+export const fetchEmployeesByBranch = (branchId: string): Employee[] => {
+  return employees.filter(employee => employee.branchId === branchId);
+};
+
+export const fetchEmployeesByDepartment = (department: string): Employee[] => {
+  return employees.filter(employee => employee.department === department);
 };
 
 export const fetchEmployeeById = (id: string): Employee | null => {
