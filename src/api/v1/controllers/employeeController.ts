@@ -1,32 +1,74 @@
 import { Request, Response } from "express";
-import * as employeeService from "../services/employeeService";
+import {
+  getAllEmployees as fetchAllEmployees,
+  createEmployee as addEmployee,
+  updateEmployee as modifyEmployee,
+  deleteEmployee as removeEmployee,
+  getEmployeeById as fetchEmployeeById,
+} from "../services/employeeService";
+import { Employee } from "../interfaces/Employee";
 
-export const createEmployee = (req: Request, res: Response) => {
-  const employee = employeeService.createEmployee(req.body);
-  res.status(201).json(employee);
+export const getAllEmployees = (req: Request, res: Response): void => {
+  const employees: Employee[] = fetchAllEmployees();
+  res.status(200).json({ message: "Fetched all employees", data: employees });
 };
 
-export const getAllEmployees = (req: Request, res: Response) => {
-  res.json(employeeService.getAllEmployees());
+export const getEmployeeById = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const employee: Employee | null = fetchEmployeeById(id);
+
+  if (!employee) {
+    res.status(404).json({ message: "Employee not found" });
+    return;
+  }
+
+  res.status(200).json({ message: "Fetched employee", data: employee });
 };
 
-export const getEmployeeById = (req: Request, res: Response) => {
-  const employee = employeeService.getEmployeeById(req.params.id);
-  if (!employee) return res.status(404).json({ message: "Employee not found" });
+export const createEmployee = (req: Request, res: Response): void => {
+  const { name, position } = req.body; // Removed salary
 
-  res.json(employee);
+  if (!name || !position) {
+    res.status(400).json({ message: "Missing required fields" });
+    return;
+  }
+
+  const newEmployee: Employee = addEmployee({
+    id: "", name, position,
+    department: "",
+    email: "",
+    phone: "",
+    branchId: ""
+  });
+  res.status(201).json({ message: "Employee created", data: newEmployee });
 };
 
-export const updateEmployee = (req: Request, res: Response) => {
-  const employee = employeeService.updateEmployee(req.params.id, req.body);
-  if (!employee) return res.status(404).json({ message: "Employee not found" });
+export const updateEmployee = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const updates: Partial<Employee> = req.body;
 
-  res.json(employee);
+  if (Object.keys(updates).length === 0) {
+    res.status(400).json({ message: "No updates provided" });
+    return;
+  }
+
+  const updatedEmployee = modifyEmployee(id, updates);
+  if (!updatedEmployee) {
+    res.status(404).json({ message: "Employee not found" });
+    return;
+  }
+
+  res.status(200).json({ message: "Employee updated", data: updatedEmployee });
 };
 
-export const deleteEmployee = (req: Request, res: Response) => {
-  const success = employeeService.deleteEmployee(req.params.id);
-  if (!success) return res.status(404).json({ message: "Employee not found" });
+export const deleteEmployee = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const success = removeEmployee(id);
 
-  res.json({ message: "Employee deleted successfully" });
+  if (!success) {
+    res.status(404).json({ message: "Employee not found" });
+    return;
+  }
+
+  res.status(200).json({ message: "Employee deleted" });
 };

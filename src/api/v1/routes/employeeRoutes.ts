@@ -1,12 +1,13 @@
-import { Router } from "express";
+import express from "express";
 import * as employeeController from "../controllers/employeeController";
 
-const router = Router();
+const router = express.Router();
 
+// Ensure correct route structure
 router.post("/employees", employeeController.createEmployee);
 router.get("/employees", employeeController.getAllEmployees);
-router.get("/employees", employeeController.getEmployeeById);
-router.put("/employees", employeeController.updateEmployee);
-router.delete("/employees", employeeController.deleteEmployee);
+router.get("/employees/:id", employeeController.getEmployeeById);
+router.put("/employees/:id", employeeController.updateEmployee);
+router.delete("/employees/:id", employeeController.deleteEmployee);
 
 export default router;
