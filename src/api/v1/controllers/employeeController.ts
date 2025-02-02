@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import {
-  getAllEmployees as fetchAllEmployees,
-  createEmployee as addEmployee,
-  updateEmployee as modifyEmployee,
-  deleteEmployee as removeEmployee,
-  getEmployeeById as fetchEmployeeById,
+  fetchAllEmployees, 
+  addEmployee, 
+  modifyEmployee, 
+  removeEmployee, 
+  fetchEmployeeById 
 } from "../services/employeeService";
 import { Employee } from "../interfaces/Employee";
 
@@ -26,20 +26,14 @@ export const getEmployeeById = (req: Request, res: Response): void => {
 };
 
 export const createEmployee = (req: Request, res: Response): void => {
-  const { name, position } = req.body; // Removed salary
+  const { name, position } = req.body;
 
   if (!name || !position) {
     res.status(400).json({ message: "Missing required fields" });
     return;
   }
 
-  const newEmployee: Employee = addEmployee({
-    id: "", name, position,
-    department: "",
-    email: "",
-    phone: "",
-    branchId: ""
-  });
+  const newEmployee: Employee = addEmployee({ id: "", name, position, department: "", email: "", phone: "", branchId: "" });
   res.status(201).json({ message: "Employee created", data: newEmployee });
 };
 

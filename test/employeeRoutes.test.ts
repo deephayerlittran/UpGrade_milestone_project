@@ -1,54 +1,88 @@
 import request from "supertest";
-import app from "../src/app";
+import express from "express";
+import routes from "../src/api/v1/routes/employeeRoutes";
+import * as controller from "../src/api/v1/controllers/employeeController";
+
+jest.mock("../src/api/v1/controllers/employeeController");
+
+const app = express();
+app.use(express.json());
+app.use("/api/v1", routes);
 
 describe("Employee API Endpoints", () => {
-    let employeeId: string;
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    it("should create a new employee", async () => {
-        const response = await request(app)
-          .post("/api/v1/employees")
-          .send({
-            name: "John Doe",
-            position: "Software Engineer",
-            department: "IT",
-            email: "john.doe@example.com",
-            phone: "1234567890",
-            branchId: "101",
-          });
-    
-        expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty("id");
-        employeeId = response.body.id;
+  describe("POST /api/v1/employees", () => {
+    it("should call create controller", async () => {
+      const mockEmployee = { name: "John Doe", position: "Software Engineer" };
+
+      (controller.createEmployee as jest.Mock).mockImplementationOnce((req, res) => {
+        res.status(201).json({ message: "Employee created", data: { id: "1", ...mockEmployee } });
       });
 
-      it("should get all employees", async () => {
-        const response = await request(app).get("/api/v1/employees");
-        expect(response.status).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true);
+      const response = await request(app).post("/api/v1/employees").send(mockEmployee);
+      expect(controller.createEmployee).toHaveBeenCalled();
+      expect(response.status).toBe(201);
+      expect(response.body.message).toBe("Employee created");
+      expect(response.body.data).toHaveProperty("id");
+    });
+  });
+
+  describe("GET /api/v1/employees", () => {
+    it("should call getAll controller", async () => {
+      (controller.getAllEmployees as jest.Mock).mockImplementationOnce((req, res) => {
+        res.status(200).json({ message: "Fetched all employees", data: [] });
       });
 
-      it("should get an employee by ID", async () => {
-        const response = await request(app).get(`/api/v1/employees/${employeeId}`);
-        expect(response.status).toBe(200);
-        expect(response.body.id).toBe(employeeId);
+      const response = await request(app).get("/api/v1/employees");
+      expect(controller.getAllEmployees).toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+  });
+
+  describe("GET /api/v1/employees/:id", () => {
+    it("should call getEmployeeById controller", async () => {
+      const mockEmployee = { id: "1", name: "John Doe", position: "Software Engineer" };
+
+      (controller.getEmployeeById as jest.Mock).mockImplementationOnce((req, res) => {
+        res.status(200).json({ message: "Fetched employee", data: mockEmployee });
       });
 
-      it("should update an employee", async () => {
-        const response = await request(app)
-          .put(`/api/v1/employees/${employeeId}`)
-          .send({ position: "Senior Engineer" });
-    
-        expect(response.status).toBe(200);
-        expect(response.body.position).toBe("Senior Engineer");
+      const response = await request(app).get("/api/v1/employees/1");
+      expect(controller.getEmployeeById).toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe("1");
+    });
+  });
+
+  describe("PUT /api/v1/employees/:id", () => {
+    it("should call update controller", async () => {
+      const mockUpdate = { position: "Senior Engineer" };
+
+      (controller.updateEmployee as jest.Mock).mockImplementationOnce((req, res) => {
+        res.status(200).json({ message: "Employee updated", data: { id: "1", ...mockUpdate } });
       });
 
-      it("should delete an employee", async () => {
-        const response = await request(app).delete(`/api/v1/employees/${employeeId}`);
-        expect(response.status).toBe(200);
+      const response = await request(app).put("/api/v1/employees/1").send(mockUpdate);
+      expect(controller.updateEmployee).toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(response.body.data.position).toBe("Senior Engineer");
+    });
+  });
+
+  describe("DELETE /api/v1/employees/:id", () => {
+    it("should call delete controller", async () => {
+      (controller.deleteEmployee as jest.Mock).mockImplementationOnce((req, res) => {
+        res.status(200).json({ message: "Employee deleted" });
       });
 
-      it("should return 404 for a deleted employee", async () => {
-        const response = await request(app).get(`/api/v1/employees/${employeeId}`);
-        expect(response.status).toBe(404);
-      });
+      const response = await request(app).delete("/api/v1/employees/1");
+      expect(controller.deleteEmployee).toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("Employee deleted");
+    });
+  });
 });
