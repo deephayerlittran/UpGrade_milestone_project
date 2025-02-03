@@ -15,7 +15,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: "20.x"
+                  node-version: "22.13.0"
 
             # Step 3: Install ESLint for development
             - name: Install ESLint for development
