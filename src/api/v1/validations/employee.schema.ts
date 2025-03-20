@@ -24,3 +24,19 @@ export const createEmployeeSchema: Joi.ObjectSchema = Joi.object({
     })
 });
 
+export const updateEmployeeSchema: Joi.ObjectSchema = Joi.object({
+    name: Joi.string().optional(),
+    position: Joi.string().optional(),
+    department: Joi.string().optional(),
+    email: Joi.string().email().optional().messages({
+        'string.email': 'Invalid email format.'
+    }),
+    phone: Joi.string().regex(/^[+]?[\d\s-()]{7,}$/).optional().messages({ // Updated regex here
+        "string.pattern.base": "Phone must be a valid phone number (at least 7 digits/symbols)" // Updated message
+    }),
+    branchId: Joi.number().integer().optional().messages({
+        'number.base': 'Branch ID must be a number.'
+    })
+}).min(1).messages({ // Ensure at least one field is provided for update
+    'object.min': 'At least one field to update must be provided'
+});
