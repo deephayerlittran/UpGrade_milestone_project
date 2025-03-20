@@ -14,3 +14,15 @@ export const createBranchSchema: ObjectSchema = Joi.object({
         "string.pattern.base": "Phone must be a valid phone number"
     }),
 });
+
+export const updateBranchSchema: ObjectSchema = Joi.object({
+    name: Joi.string().messages({ 
+        "string.base": "Name should be a type of 'text'",
+    }),
+    address: Joi.string().messages({ 
+        "string.base": "Address should be a type of 'text'",
+    }),
+    phone: Joi.string().regex(/^[+]?[\d\s-()]+$/).messages({ 
+        "string.pattern.base": "Phone must be a valid phone number"
+    }),
+}).min(1).messages({'object.min': 'At least one field must be provided for update'});
