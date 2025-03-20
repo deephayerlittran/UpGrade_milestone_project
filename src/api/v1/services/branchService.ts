@@ -1,47 +1,72 @@
-import { Branch } from "../interfaces/branch";
+import { Branch } from "../models/branch";
+import { FirebaseRepository } from "../repositories/firesbaseRepository";
 
-// Sample branch data
-let branches: Branch[] = [
-  { id: 1, name: "Vancouver Branch", address: "1300 Burrard St, Vancouver, BC, V6Z 2C7", phone: "604-456-0022" },
-  { id: 2, name: "Edmonton Branch", address: "7250 82 Ave NW, Edmonton, AB, T6B 0G4", phone: "780-468-6800" },
-  { id: 3, name: "Arborg Branch", address: "317-A Fisher Road, Arborg, MB, R0C 0A0", phone: "204-555-3461" },
-  { id: 4, name: "Regina Branch", address: "3085 Albert, Regina, SK, S4S 0B1", phone: "206-640-2877" },
-  { id: 5, name: "Winnipeg Branch", address: "1 Portage Ave, Winnipeg, MB, R3B 2B9", phone: "204-988-2402" },
-  { id: 6, name: "Steinbach Branch", address: "330 Main St, Steinbach, MB, R5G 1Z1", phone: "204-326-3495" },
-  { id: 7, name: "Montréal Branch", address: "511 Rue Jean-Talon O, Montréal, QC, H3N 1R5", phone: "514-277-5511" },
-  { id: 8, name: "Toronto Branch", address: "440 Queen St W, Toronto, ON, M5V 2A8", phone: "416-980-2500" },
-  { id: 9, name: "Saint John Branch", address: "500 Fairville Blvd, Saint John, NB, E2M 5H7", phone: "506-632-0225" },
-  { id: 10, name: "Headingley Branch", address: "500 McIntosh Rd, Headingley, MB, R4H 1B6", phone: "204-999-5555" },
-];
+export class BranchService {
+  private firebaseRepository: FirebaseRepository;
 
-let branchIdCounter = 11; // Auto-incrementing ID for new branches
+  constructor(firebaseRepository: FirebaseRepository) {
+    this.firebaseRepository = firebaseRepository;
+  }
 
-// Create a new branch
-export const createBranch = async (branchData: Omit<Branch, "id">): Promise<Branch> => {
-  const newBranch: Branch = { id: branchIdCounter++, ...branchData };
-  branches.push(newBranch);
-  return newBranch;
-};
+  async createBranch(branchData: Branch): Promise<Branch> {
+    try {
+      console.log("Service: Creating branch:", branchData);
+      const newBranch = await this.firebaseRepository.createBranch(branchData);
+      console.log("Service: Branch created:", newBranch);
+      return newBranch;
+    } catch (error) {
+      console.error("Service: Error creating branch:", error);
+      if (error instanceof Error) {
+        console.error("Service: Error message:", error.message);
+        console.error("Service: Error stack:", error.stack);
+      }
+      throw error;
+    }
+  }
 
-// Get all branches
-export const getAllBranches = async (): Promise<Branch[]> => {
-  return branches;
-};
+  async getAllBranches(): Promise<Branch[]> {
+    try {
+      console.log("Service: Getting all branches");
+      const branches = await this.firebaseRepository.getAllBranches();
+      console.log("Service: Branches retrieved:", branches);
+      return branches;
+    } catch (error) {
+      console.error("Service: Error getting all branches:", error);
+      if (error instanceof Error) {
+        console.error("Service: Error message:", error.message);
+        console.error("Service: Error stack:", error.stack);
+      }
+      throw error;
+    }
+  }
 
-export const getBranchById = async (id: number): Promise<Branch | undefined> => {
-  return branches.find(branch => branch.id === id);
-};
+  async getBranchById(id: string): Promise<Branch | undefined> {
+    try {
+      const numericId = parseInt(id, 10); // Convert string id to number
+      return await this.firebaseRepository.getBranchById(numericId);
+    } catch (error) {
+      console.error("Service: Error getting branch by ID:", error);
+      throw error;
+    }
+  }
 
-export const updateBranch = async (id: number, updateData: Partial<Branch>): Promise<Branch | null> => {
-  const branchIndex = branches.findIndex(branch => branch.id === id);
-  if (branchIndex === -1) return null;
-  
-  branches[branchIndex] = { ...branches[branchIndex], ...updateData };
-  return branches[branchIndex];
-};
+  async updateBranch(id: string, updateData: Partial<Branch>): Promise<Branch | null> {
+    try {
+      const numericId = parseInt(id, 10); // Convert string id to number
+      return await this.firebaseRepository.updateBranch(numericId, updateData);
+    } catch (error) {
+      console.error("Service: Error updating branch:", error);
+      throw error;
+    }
+  }
 
-export const deleteBranch = async (id: number): Promise<boolean> => {
-  const initialLength = branches.length;
-  branches = branches.filter(branch => branch.id !== id);
-  return branches.length < initialLength;
-};
+  async deleteBranch(id: string): Promise<boolean> {
+    try {
+      const numericId = parseInt(id, 10); // Convert string id to number
+      return await this.firebaseRepository.deleteBranch(numericId);
+    } catch (error) {
+      console.error("Service: Error deleting branch:", error);
+      throw error;
+    }
+  }
+}
