@@ -19,6 +19,6 @@
             "*": ["*"]
         }
     },
-    "include": ["src/**/*", "test/**/*", "config/**/*", "types/**/*"],
+    "include": ["src/**/*", "test/**/*", "config/**/*", "src/api/v1/types/**/*"],
     "exclude": ["node_modules", "dist"]
 }
