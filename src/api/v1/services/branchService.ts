@@ -1,5 +1,5 @@
 import { Branch } from "../models/branch";
-import { FirebaseRepository } from "../repositories/firesbaseRepository";
+import { FirebaseRepository } from "../repositories/firebaseRepository";
 
 export class BranchService {
   private firebaseRepository: FirebaseRepository;
