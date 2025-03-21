@@ -174,3 +174,49 @@ export class FirebaseRepository {
             return false;
         }
     }
+
+    async getEmployeesByBranchId(branchId: string | number): Promise<Employee[]> {
+        try {
+            const querySnapshot = await this.employeesCollection.where("branchId", "==", branchId.toString()).get();
+            const employees: Employee[] = [];
+            querySnapshot.forEach((doc) => {
+                const employeeData = doc.data() as Employee;
+                employees.push({ id: doc.id, ...employeeData });
+            });
+            return employees;
+        } catch (error) {
+            console.error("Error getting employees by branch ID:", error);
+            return []; // Or throw the error if you prefer
+        }
+    }
+
+    async getEmployeesByDepartment(department: string): Promise<Employee[]> {
+        try {
+            const querySnapshot = await this.employeesCollection.where("department", "==", department).get();
+            const employees: Employee[] = [];
+            querySnapshot.forEach((doc) => {
+                const employeeData = doc.data() as Employee;
+                employees.push({ id: doc.id, ...employeeData });
+            });
+            return employees;
+        } catch (error) {
+            console.error("Error getting employees by department:", error);
+            return []; // Or throw the error
+        }
+    }
+
+    async getAllEmployees(): Promise<Employee[]> {
+        try {
+            const snapshot = await this.employeesCollection.get();
+            const employees: Employee[] = [];
+            snapshot.forEach((doc) => {
+                const employeeData = doc.data() as Employee;
+                employees.push({ id: doc.id, ...employeeData });
+            });
+            return employees;
+        } catch (error) {
+            console.error("Error getting all employees:", error);
+            throw error;
+        }
+    }
+}
