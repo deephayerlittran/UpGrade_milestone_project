@@ -1,5 +1,5 @@
 import { Employee } from "../models/employee";
-import { FirebaseRepository } from "../repositories/firesbaseRepository";
+import { FirebaseRepository } from "../repositories/firebaseRepository";
 
 export class EmployeeService {
     constructor(private firebaseRepository: FirebaseRepository) {} 
