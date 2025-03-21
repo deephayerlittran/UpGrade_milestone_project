@@ -82,3 +82,40 @@ export class FirebaseRepository {
             return null;
         }
     }
+
+    async deleteBranch(id: string | number): Promise<boolean> {
+        try {
+            let branchRef;
+            if (typeof id === 'string') {
+                branchRef = this.branchesCollection.doc(id);
+            } else {
+                const querySnapshot = await this.branchesCollection.where("id", "==", id.toString()).get();
+                if (querySnapshot.empty) return false;
+                branchRef = querySnapshot.docs[0].ref;
+            }
+
+            await branchRef.delete();
+            return true;
+        } catch (error) {
+            console.error("Error deleting branch:", error);
+            return false;
+        }
+    }
+
+    async getAllBranches(): Promise<Branch[]> {
+        try {
+            const snapshot = await this.branchesCollection.get();
+            const branches: Branch[] = [];
+            snapshot.forEach((doc) => {
+                const branchData = doc.data() as Branch;
+                if (branchData.id !== undefined) {
+                    branches.push({ id: branchData.id.toString(), ...branchData });
+                }
+            });
+            return branches;
+        } catch (error) {
+            console.error("Error getting all branches:", error);
+            throw error;
+        }
+    }
+
