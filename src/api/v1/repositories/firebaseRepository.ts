@@ -119,3 +119,33 @@ export class FirebaseRepository {
         }
     }
 
+
+    // *** Employee Functions ***
+    private employeesCollection = db.collection("employees");
+
+    async createEmployee(employeeData: Omit<Employee, 'id'>): Promise<Employee> {
+        try {
+            const newEmployeeRef = this.employeesCollection.doc();
+            const newEmployee: Employee = { ...employeeData, id: newEmployeeRef.id };
+            await newEmployeeRef.set(newEmployee);
+            return newEmployee;
+        } catch (error) {
+            console.error("Error creating employee:", error);
+            throw new Error("Failed to create employee");
+        }
+    }
+
+    async getEmployeeById(id: string): Promise<Employee | undefined> {
+        try {
+            const employeeRef = this.employeesCollection.doc(id);
+            const employeeDoc = await employeeRef.get();
+            if (employeeDoc.exists) {
+                const employeeData = employeeDoc.data() as Employee;
+                return employeeData;
+            }
+            return undefined;
+        } catch (error) {
+            console.error("Error getting employee by ID:", error);
+            return undefined;
+        }
+    }
