@@ -149,3 +149,28 @@ export class FirebaseRepository {
             return undefined;
         }
     }
+
+    async updateEmployee(id: string, updateData: Partial<Employee>): Promise<Employee | null> {
+        try {
+            const employee = await this.getEmployeeById(id);
+            if (!employee) return null;
+
+            const employeeRef = this.employeesCollection.doc(id);
+            await employeeRef.update(updateData);
+            return { ...employee, ...updateData };
+        } catch (error) {
+            console.error("Error updating employee:", error);
+            return null;
+        }
+    }
+
+    async deleteEmployee(id: string): Promise<boolean> {
+        try {
+            const employeeRef = this.employeesCollection.doc(id);
+            await employeeRef.delete();
+            return true;
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+            return false;
+        }
+    }
