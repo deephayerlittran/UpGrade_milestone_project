@@ -74,3 +74,36 @@
 **Consistent Data Handling:** Ensure consistent data type handling throughout your application, especially for IDs. Use strings for IDs.
 
 - **How does this enhance your understanding of the overall project?** This scenario highlights the importance of data integrity and the need to validate data at each layer of your application. It shows that debugging can help identify issues with the data being passed between layers.
+
+## Scenario 3: Incorrect Branch ID Type During Update
+
+- **Breakpoint Location:** `src/api/v1/services/branchService.ts:55` (`const numericId = parseInt(id, 10);`)
+
+- **Objective:** To inspect the `id` parameter being passed to the `updateBranch` function and verify its type. The goal is to ensure that the ID is a string *before* the `parseInt` call and to understand why a numeric ID is needed in the service layer.
+
+### Debugger Observations
+
+- **Variable States:**
+- `id`: `"1"` (a string, as shown in the screenshot). This is the correct type *before* the `parseInt` call.
+- `numericId`: `1` (a number, the result of `parseInt`). This is the *incorrect* type for a Firestore document ID.
+- `updateData`: `{ name: 'Vancouver Branch', address: '1300 Burrard St, Vancouver, BC, V6Z 207', phone: '604-456-9999' }` (The data to update the branch with).
+
+- **Call Stack:**
+1.`BranchService.updateBranch`
+2.`BranchController.updateBranch`
+
+- **Behavior:** The debugger pauses execution *before* the `parseInt` call. This allows you to inspect the `id` as it's received by the service.
+
+### Analysis
+
+- **What did you learn from this scenario?** The `id` is correctly received as a string in the service layer. The issue is the *unnecessary* conversion to a number.
+
+- **Did you observe any unexpected behavior? If so, what might be the cause?** The primary issue is the conversion to a number. Firestore document IDs are strings. Using a numeric ID in the repository methods will likely lead to errors or incorrect behavior.
+
+- **Are there areas for improvement or refactoring in this part of the code?**
+
+**Remove `parseInt` (Crucial):** The `parseInt` call should be removed. The `id` should be used as a string.
+**Consistent ID Handling (Essential):** Branch IDs should be treated as strings throughout the application (controller, service, repository).
+**Validate ID (Recommended):** Validate the `id` in the service layer to ensure it's a non-empty string.
+
+- **How does this enhance your understanding of the overall project?** This scenario highlights the importance of consistent data type handling, especially for IDs. Unnecessary type conversions can lead to errors.
