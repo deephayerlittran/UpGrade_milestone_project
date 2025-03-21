@@ -38,3 +38,47 @@ export class FirebaseRepository {
             throw error;
         }
     }
+
+    async getBranchById(id: string | number): Promise<Branch | undefined> {
+        try {
+            let branchRef;
+            if (typeof id === 'string') {
+                branchRef = this.branchesCollection.doc(id);
+            } else {
+                const querySnapshot = await this.branchesCollection.where("id", "==", id.toString()).get();
+                if (querySnapshot.empty) return undefined;
+                branchRef = querySnapshot.docs[0].ref;
+            }
+            const branchDoc = await branchRef.get();
+            if (branchDoc.exists) {
+                const branchData = branchDoc.data() as Branch;
+                return branchData;
+            }
+            return undefined;
+        } catch (error) {
+            console.error("Error getting branch by ID:", error);
+            return undefined;
+        }
+    }
+
+    async updateBranch(id: string | number, updateData: Partial<Branch>): Promise<Branch | null> {
+        try {
+            const branch = await this.getBranchById(id);
+            if (!branch) return null;
+
+            let branchRef;
+            if (typeof id === 'string') {
+                branchRef = this.branchesCollection.doc(id);
+            } else {
+                const querySnapshot = await this.branchesCollection.where("id", "==", id.toString()).get();
+                if (querySnapshot.empty) return null;
+                branchRef = querySnapshot.docs[0].ref;
+            }
+
+            await branchRef.update(updateData);
+            return { ...branch, ...updateData };
+        } catch (error) {
+            console.error("Error updating branch:", error);
+            return null;
+        }
+    }
