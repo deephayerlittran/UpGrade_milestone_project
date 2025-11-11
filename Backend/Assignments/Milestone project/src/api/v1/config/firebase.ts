@@ -1,9 +1,12 @@
 import admin from "firebase-admin";
-import serviceAccount from "../../../../test-project-1a599-firebase-adminsdk-fbsvc-4bfe817687.json";
+import path from "path";
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-});
+const serviceAccountPath = path.resolve(__dirname, "../../../../test-project-1a599-firebase-adminsdk-fbsvc-4bfe817687.json");
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(require(serviceAccountPath)),
+  });
+}
 
 export const db = admin.firestore();
-export const auth = admin.auth();
